@@ -15,29 +15,36 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      # 1. Download source code
+      - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: Install .NET 8
+      # 2. Install .NET 8
+      - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
 
-      - name: Restore API
+      # 3. Restore NuGet packages
+      - name: Restore dependencies
         run: dotnet restore GitHubActionsDemo.csproj
 
-      - name: Build API
+      # 4. Build the Web API
+      - name: Build Web API
         run: dotnet build GitHubActionsDemo.csproj --configuration Release --no-restore
 
-      - name: Test API
+      # 5. Run unit tests
+      - name: Run tests
         run: dotnet test GitHubActionsDemo.Tests/GitHubActionsDemo.Tests.csproj --configuration Release
 
-      - name: Publish API
+      # 6. Publish the Web API
+      - name: Publish Web API
         run: dotnet publish GitHubActionsDemo.csproj --configuration Release --no-build --output ./publish
 
+      # 7. Deploy to Azure App Service
       - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v3
         with:
-          app-name: YOUR-AZURE-WEBAPP-NAME
+          app-name: githubactionsdemo-api-1
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: ./publish
